@@ -18,6 +18,7 @@ type problem struct {
 func main() {
 	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,answer'")
 	timeLimit := flag.Int("limit", 10, "the time limit for the quiz in seconds")
+	shuffle := flag.Bool("shuffle", false, "shuffle questions?")
 	flag.Parse()
 
 	file, err := os.Open(*csvFilename)
@@ -33,6 +34,10 @@ func main() {
 	}
 
 	problems := parseLines(lines)
+
+	if *shuffle {
+		problems = shuffleQuestions(problems)
+	}
 
 	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
 	correct := 0
@@ -73,10 +78,10 @@ func parseLines(lines [][]string) []problem {
 		}
 	}
 
-	return shuffle(result)
+	return result
 }
 
-func shuffle(src []problem) (final []problem) {
+func shuffleQuestions(src []problem) (final []problem) {
 	final = make([]problem, len(src))
 	rand.Seed(time.Now().UTC().UnixNano())
 	perm := rand.Perm(len(src))
