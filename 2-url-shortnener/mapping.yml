@@ -1,0 +1,4 @@
+- path: /2-exercise.yml
+  url: https://github.com/dimabory/gophercises/2-url-shortnener
+- path: /2-exercise/shortener.yml
+  url: https://github.com/dimabory/gophercises/2-url-shortnener/shortener
