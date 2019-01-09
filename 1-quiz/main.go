@@ -1,13 +1,21 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"flag"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
+)
+
+var (
+	flagFilePath string
+	flagRandom   bool
+	flagTime     int
 )
 
 type problem struct {
@@ -15,38 +23,39 @@ type problem struct {
 	answer   string
 }
 
-func main() {
-	csvFilename := flag.String("csv", "problems.csv", "a csv file in the format of 'question,answer'")
-	timeLimit := flag.Int("limit", 10, "the time limit for the quiz in seconds")
-	shuffle := flag.Bool("shuffle", false, "shuffle questions?")
+func init() {
+	// flagFilePath := flag.String("csv", "problems.csv", "path/to/csv_file")
+
+	flag.StringVar(&flagFilePath, "csv", "problems.csv", "path/to/csv_file")
+	flag.IntVar(&flagTime, "time", 10, "the time limit for the quiz in seconds")
+	flag.BoolVar(&flagRandom, "shuffle", false, "shuffle questions?")
+
 	flag.Parse()
+}
 
-	file, err := os.Open(*csvFilename)
-	if err != nil {
-		exit(fmt.Sprintf("Failed to open a CSV file: %s", *csvFilename), 1)
-	}
+func main() {
 
-	reader := csv.NewReader(file)
+	lines := loadFile(flagFilePath)
 
-	lines, err := reader.ReadAll()
-	if err != nil {
-		exit("Failed to parse the provided CSV file.", 1)
-	}
+	// block until user presses enter
+	fmt.Print(fmt.Sprintf("Press [Enter] to start test. You will have %d seconds to finish the quiz.", flagTime))
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
 
 	problems := parseLines(lines)
 
-	if *shuffle {
+	if flagRandom {
 		problems = shuffleQuestions(problems)
 	}
 
-	timer := time.NewTimer(time.Duration(*timeLimit) * time.Second)
+	timer := time.NewTimer(time.Duration(flagTime) * time.Second)
 	correct := 0
+
+	answerChan := make(chan string, len(problems))
 
 	// problemLoop:
 	for i, problem := range problems {
 		fmt.Printf("Problem #%d: %s = ", i+1, problem.question)
 
-		answerChan := make(chan string)
 		go func() {
 			var answer string
 			fmt.Scanf("%s\n", &answer)
@@ -55,6 +64,7 @@ func main() {
 
 		select {
 		case <-timer.C:
+			close(answerChan)
 			fmt.Println()
 			// break problemLoop
 			return
@@ -93,7 +103,16 @@ func shuffleQuestions(src []problem) (final []problem) {
 	return
 }
 
-func exit(msg string, code int) {
-	fmt.Println(msg)
-	os.Exit(code)
+func loadFile(filepath string) [][]string {
+	file, err := os.Open(filepath)
+	defer file.Close()
+	if err != nil {
+		log.Fatalln(fmt.Sprintf("Couldn't open a CSV file: %s", filepath))
+	}
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		log.Fatalln(fmt.Sprintf("Couldn't parse a CSV file: %s", filepath))
+	}
+	return records
 }
