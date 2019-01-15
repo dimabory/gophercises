@@ -18,7 +18,9 @@ func Parse(r io.Reader) ([]Link, error) {
 		return nil, err
 	}
 
-	nodes := linkNodes(doc)
+	nodes := linkNodes(doc, func(n *html.Node) bool {
+		return n.Type == html.ElementNode && n.Data == "a"
+	})
 
 	var links []Link
 
@@ -57,16 +59,18 @@ func text(n *html.Node) string {
 	return ret
 }
 
-func linkNodes(n *html.Node) []*html.Node {
-	if n.Type == html.ElementNode && n.Data == "a" {
+func linkNodes(n *html.Node, match matchNode) []*html.Node {
+	if match(n) {
 		return []*html.Node{n}
 	}
 
 	var ret []*html.Node
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		ret = append(ret, linkNodes(c)...)
+		ret = append(ret, linkNodes(c, match)...)
 	}
 
 	return ret
 }
+
+type matchNode func(n *html.Node) bool
