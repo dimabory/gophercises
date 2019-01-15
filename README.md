@@ -7,3 +7,4 @@ Coding exercises for budding gophers
 2. [URL shorter](./2-url-shortnener)
 3. [Adventure](./3-adventure)
 4. [Link Parser](./4-link-parser)
+5. [Sitemap](./5-sitemap-builder)
