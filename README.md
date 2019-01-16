@@ -8,3 +8,5 @@ Coding exercises for budding gophers
 3. [Adventure](./3-adventure)
 4. [Link Parser](./4-link-parser)
 5. [Sitemap](./5-sitemap-builder)
+6. [Hackerrank](./6-hackerrank)
+
