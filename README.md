@@ -11,4 +11,6 @@ Coding exercises for budding gophers
 6. [Hackerrank](./6-hackerrank)
 7. [Task Manager](./7-task-manager)
 8. [Phone Number Normalizer](./8-phone-normalizer)
+9. [Deck of Cards](./9)
+
 
