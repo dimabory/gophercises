@@ -9,4 +9,5 @@ Coding exercises for budding gophers
 4. [Link Parser](./4-link-parser)
 5. [Sitemap](./5-sitemap-builder)
 6. [Hackerrank](./6-hackerrank)
+6. [Task Manager](7-task-manager)
 
